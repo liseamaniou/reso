@@ -6,7 +6,23 @@
     <title>Daily Meditations</title>
     <style>
         :root { --primary: #6c5ce7; --bg: #f9f9fb; --text: #2d3436; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: transparent; color: var(--text); margin: 0; padding: 20px; }
+        
+        /* UPDATED: Ensure no overflow and hide scrollbars */
+        html, body { 
+            margin: 0; 
+            padding: 0; 
+            background: transparent; 
+            color: var(--text); 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden; /* Prevents horizontal shift */
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none;  /* IE/Edge */
+        }
+        body::-webkit-scrollbar { display: none; } /* Chrome/Safari */
+
+        /* Added a wrapper for internal padding instead of body padding */
+        .content-wrapper { padding: 20px; }
+
         header { text-align: center; margin-bottom: 30px; }
         h1 { color: var(--primary); font-size: 1.8rem; margin-bottom: 5px; }
         .subtitle { font-style: italic; color: #636e72; }
@@ -21,45 +37,44 @@
     </style>
 </head>
 <body>
+    <div class="content-wrapper">
+        <header>
+            <h1>Daily Mindful Moments</h1>
+            <p class="subtitle">Find your calm, anywhere you are.</p>
+        </header>
 
-    <header>
-        <h1>Daily Mindful Moments</h1>
-        <p class="subtitle">Find your calm, anywhere you are.</p>
-    </header>
+        <div class="meditation-grid">
+            <div class="card">
+                <span class="duration">5 min</span>
+                <h3>Morning Clarity</h3>
+                <p>A quick breathing exercise to start your day with intention.</p>
+                <audio controls>
+                    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+                </audio>
+            </div>
 
-    <div class="meditation-grid">
-        <div class="card">
-            <span class="duration">5 min</span>
-            <h3>Morning Clarity</h3>
-            <p>A quick breathing exercise to start your day with intention.</p>
-            <audio controls>
-                <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
-                Your browser does not support the audio element.
-            </audio>
+            <div class="card">
+                <span class="duration">10 min</span>
+                <h3>Mid-Day Reset</h3>
+                <p>Release tension from your shoulders and refocus your mind.</p>
+                <audio controls>
+                    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" type="audio/mpeg">
+                </audio>
+            </div>
+
+            <div class="card">
+                <span class="duration">15 min</span>
+                <h3>Deep Sleep Prep</h3>
+                <p>Guided body scan to help you drift into a restful night.</p>
+                <audio controls>
+                    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" type="audio/mpeg">
+                </audio>
+            </div>
         </div>
 
-        <div class="card">
-            <span class="duration">10 min</span>
-            <h3>Mid-Day Reset</h3>
-            <p>Release tension from your shoulders and refocus your mind.</p>
-            <audio controls>
-                <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" type="audio/mpeg">
-            </audio>
-        </div>
-
-        <div class="card">
-            <span class="duration">15 min</span>
-            <h3>Deep Sleep Prep</h3>
-            <p>Guided body scan to help you drift into a restful night.</p>
-            <audio controls>
-                <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" type="audio/mpeg">
-            </audio>
+        <div class="quote-box">
+            "Peace comes from within. Do not seek it without." — Buddha
         </div>
     </div>
-
-    <div class="quote-box">
-        "Peace comes from within. Do not seek it without." — Buddha
-    </div>
-
 </body>
 </html>
