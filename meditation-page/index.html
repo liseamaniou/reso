@@ -35,6 +35,35 @@
         audio { width: 100%; margin-top: 15px; }
         .quote-box { text-align: center; margin-top: 40px; padding: 20px; border-top: 1px solid #ddd; color: #636e72; font-style: italic; }
     </style>
+    <script>
+        function sendHeight() {
+            // Use scrollHeight for better accuracy in iframes
+            const height = document.body.scrollHeight;
+            console.log("Child sending height: " + height); // Look for this in the console
+            window.parent.postMessage({ 'height': height }, '*');
+        }
+
+        // 1. Send when everything is loaded
+        window.addEventListener('load', sendHeight);
+        
+        // 2. Send when window is resized
+        window.addEventListener('resize', sendHeight);
+
+        // 3. Robust ResizeObserver
+        if (window.ResizeObserver) {
+            const ro = new ResizeObserver(() => {
+                sendHeight();
+            });
+            // Start observing once the body exists
+            document.addEventListener("DOMContentLoaded", () => {
+                ro.observe(document.body);
+                sendHeight(); // Initial push
+            });
+        }
+
+        // 4. Emergency Backup: Send after 1 second (helps if slow fonts/images load)
+        setTimeout(sendHeight, 1000);
+    </script>
 </head>
 <body>
     <div class="content-wrapper">
