@@ -5,9 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daily Meditations</title>
     <style>
-        :root { --primary: #9F1457; --bg: #f9f9fb; --text: #2d3436; }
+        :root { 
+            --primary: #9F1457; 
+            --bg: #f9f9fb; 
+            --text: #2d3436;
+        }
         
-        /* Ensure no overflow and hide scrollbars */
+        html { scroll-behavior: smooth; } /* Makes the jumping smooth */
+
         html, body { 
             margin: 0; 
             padding: 0; 
@@ -20,18 +25,53 @@
         }
         body::-webkit-scrollbar { display: none; }
 
-        .content-wrapper {}
+        /* --- NEW MENU STYLES --- */
+        nav.meditation-menu {
+            position: sticky;
+            top: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(5px);
+            padding: 15px 10px;
+            z-index: 100;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
 
-        header { text-align: center; margin-bottom: 30px; }
+        nav.meditation-menu a {
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 600;
+            font-size: 0.9rem;
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid #ddd;
+            transition: all 0.3s ease;
+        }
+
+        nav.meditation-menu a:hover {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        /* ----------------------- */
+
+        .content-wrapper { padding-bottom: 50px; }
+
+        header { text-align: center; margin-bottom: 30px; padding-top: 20px; }
         h1 { color: var(--primary); font-size: 1.8rem; margin-bottom: 5px; }
-        .subtitle { font-style: italic; color: #636e72; }
+        .subtitle { font-style: italic; color: #636e72; max-width: 800px; margin: 0 auto; line-height: 1.4; }
         
         .meditation-grid { 
             display: grid; 
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
             gap: 20px; 
             max-width: 1000px; 
-            margin: 0 auto; 
+            margin: 0 auto 60px auto; 
         }
         .card { 
             background: white; 
@@ -39,29 +79,60 @@
             border-radius: 15px; 
             box-shadow: 0 4px 6px rgba(0,0,0,0.05); 
             border-left: 5px solid var(--primary); 
+            display: flex;
+            flex-direction: column;
         }
         .card h3 { margin: 0 0 10px 0; font-size: 1.2rem; }
         .duration { font-size: 0.8rem; background: #eee; padding: 3px 8px; border-radius: 10px; float: right; }
         
-        /* Spacing for the Transistor Iframe */
-        iframe.transistor-player { width: 100%; margin-top: 15px; }
+        iframe { width: 100%; margin-top: auto; padding-top: 15px; }
         
-        .quote-box { text-align: center; margin-top: 40px; padding: 20px; border-top: 1px solid #ddd; color: #636e72; font-style: italic; }
+        .quote-box { text-align: center; margin-top: 40px; padding: 20px; color: #636e72; font-style: italic; }
+
+        /* --- BACK TO TOP BUTTON STYLES --- */
+        #backToTop {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            width: 45px;
+            height: 45px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: none; /* Hidden by default */
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+            transition: transform 0.2s ease, opacity 0.2s ease;
+            font-size: 20px;
+            text-decoration: none;
+        }
+
+        #backToTop:hover {
+            transform: scale(1.1);
+            background-color: #7a0f43; /* Slightly darker shade */
+        }
+
+        /* Arrow icon using a simple Unicode character */
+        #backToTop::before {
+            content: '↑';
+            font-weight: bold;
+        }
     </style>
     <script>
         function sendHeight() {
             const height = document.body.scrollHeight;
-            console.log("Child sending height: " + height);
             window.parent.postMessage({ 'height': height }, '*');
         }
-
         window.addEventListener('load', sendHeight);
         window.addEventListener('resize', sendHeight);
-
+        window.addEventListener('scroll', handleScroll); // Listen for scroll
+        
         if (window.ResizeObserver) {
-            const ro = new ResizeObserver(() => {
-                sendHeight();
-            });
+            const ro = new ResizeObserver(() => sendHeight());
             document.addEventListener("DOMContentLoaded", () => {
                 ro.observe(document.body);
                 sendHeight();
@@ -71,10 +142,17 @@
     </script>
 </head>
 <body>
+
+    <nav class="meditation-menu">
+        <a href="#quotidien">Les pratiques du quotidien</a>
+        <a href="#bienveillance">Méditations de bienveillance</a>
+        <span style="color: #ccc; padding: 8px;">Bientôt plus...</span>
+    </nav>
+
     <div class="content-wrapper">
-        <header>
+        <header id="quotidien">
             <h1>Les pratiques du quotidien</h1>
-            <p class="subtitle">Vous trouverez ici toutes les pratiques disponibles pour vous pour votre pratique quotidienne</p>
+            <p class="subtitle">Vous trouverez ici toutes les pratiques disponibles pour votre pratique quotidienne</p>
         </header>
 
         <div class="meditation-grid">
@@ -98,12 +176,30 @@
                 <p>Cultiver la vie dans son surgissement</p>
                 <iframe width="100%" height="390" frameborder="no" scrolling="no" src="https://share.transistor.fm/e/cycle-2023-2024-avec-fabrice-midal/playlist"></iframe>
             </div>
+
+            <div class="card">
+                <span class="duration">25 à 30 min</span>
+                <h3>Les deux embrassements</h3>
+                <iframe width="100%" height="390" frameborder="no" scrolling="no" src="https://share.transistor.fm/e/la-pratique-des-deux-embrassements/playlist"></iframe>
+            </div>
+
+            <div class="card">
+                <span class="duration">10 à 25 min</span>
+                <h3>La pratique des précieux bonjours</h3>
+                <iframe width="100%" height="390" frameborder="no" scrolling="no" src="https://share.transistor.fm/e/la-pratique-des-precieux-bonjours-7ef9d443-4c3d-479d-b447-e1bbeed0be42/playlist"></iframe>
+            </div>
+
+            <div class="card">
+                <span class="duration">10 à 30 min</span>
+                <h3>La lampe merveilleuse</h3>
+                <iframe width="100%" height="390" frameborder="no" scrolling="no" src="https://share.transistor.fm/e/la-lampe-merveilleuse-qui-dissipe-lobscurite-des-jugements-negatifs/playlist"></iframe>
+            </div>
         </div>
 
         <div class="quote-box">
         </div>
 
-        <header>
+        <header id="bienveillance">
             <h1>Méditations de bienveillance</h1>
             <p class="subtitle">Apprendre à s’ouvrir au monde à partir de ces ressources, plutôt qu’à subir nos vies en se repliant sur nous-mêmes</p>
         </header>
@@ -114,8 +210,11 @@
                 <h3>Les pratiques de base</h3>
                 <iframe width="100%" height="390" frameborder="no" scrolling="no" src="https://share.transistor.fm/e/pratique-de-base-bienveillance/playlist"></iframe>
             </div>
-
         </div>
+
+        
+
+        <a href="#" id="backToTop" title="Retour en haut"></a>
     </div>
 </body>
 </html>
