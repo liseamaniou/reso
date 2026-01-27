@@ -5,99 +5,98 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daily Meditations</title>
     <style>
-        :root { --primary: #6c5ce7; --bg: #f9f9fb; --text: #2d3436; }
+        :root { --primary: #9F1457; --bg: #f9f9fb; --text: #2d3436; }
         
-        /* UPDATED: Ensure no overflow and hide scrollbars */
+        /* Ensure no overflow and hide scrollbars */
         html, body { 
             margin: 0; 
             padding: 0; 
             background: transparent; 
             color: var(--text); 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            overflow-x: hidden; /* Prevents horizontal shift */
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none;  /* IE/Edge */
+            overflow-x: hidden; 
+            scrollbar-width: none; 
+            -ms-overflow-style: none;
         }
-        body::-webkit-scrollbar { display: none; } /* Chrome/Safari */
+        body::-webkit-scrollbar { display: none; }
 
-        /* Added a wrapper for internal padding instead of body padding */
         .content-wrapper { padding: 20px; }
 
         header { text-align: center; margin-bottom: 30px; }
         h1 { color: var(--primary); font-size: 1.8rem; margin-bottom: 5px; }
         .subtitle { font-style: italic; color: #636e72; }
         
-        .meditation-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; max-width: 1000px; margin: 0 auto; }
-        .card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-left: 5px solid var(--primary); }
+        .meditation-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+            gap: 20px; 
+            max-width: 1000px; 
+            margin: 0 auto; 
+        }
+        .card { 
+            background: white; 
+            padding: 20px; 
+            border-radius: 15px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05); 
+            border-left: 5px solid var(--primary); 
+        }
         .card h3 { margin: 0 0 10px 0; font-size: 1.2rem; }
         .duration { font-size: 0.8rem; background: #eee; padding: 3px 8px; border-radius: 10px; float: right; }
         
-        audio { width: 100%; margin-top: 15px; }
+        /* Spacing for the Transistor Iframe */
+        iframe.transistor-player { width: 100%; margin-top: 15px; }
+        
         .quote-box { text-align: center; margin-top: 40px; padding: 20px; border-top: 1px solid #ddd; color: #636e72; font-style: italic; }
     </style>
     <script>
         function sendHeight() {
-            // Use scrollHeight for better accuracy in iframes
             const height = document.body.scrollHeight;
-            console.log("Child sending height: " + height); // Look for this in the console
+            console.log("Child sending height: " + height);
             window.parent.postMessage({ 'height': height }, '*');
         }
 
-        // 1. Send when everything is loaded
         window.addEventListener('load', sendHeight);
-        
-        // 2. Send when window is resized
         window.addEventListener('resize', sendHeight);
 
-        // 3. Robust ResizeObserver
         if (window.ResizeObserver) {
             const ro = new ResizeObserver(() => {
                 sendHeight();
             });
-            // Start observing once the body exists
             document.addEventListener("DOMContentLoaded", () => {
                 ro.observe(document.body);
-                sendHeight(); // Initial push
+                sendHeight();
             });
         }
-
-        // 4. Emergency Backup: Send after 1 second (helps if slow fonts/images load)
         setTimeout(sendHeight, 1000);
     </script>
 </head>
 <body>
     <div class="content-wrapper">
         <header>
-            <h1>Daily Mindful Moments</h1>
-            <p class="subtitle">Find your calm, anywhere you are.</p>
+            <h1>Les pratiques du quotidien</h1>
+            <p class="subtitle">Vous trouverez ici toutes les pratiques disponibles pour vous pour votre pratique quotidienne</p>
         </header>
 
         <div class="meditation-grid">
             <div class="card">
-                <span class="duration">5 min</span>
-                <h3>Morning Clarity</h3>
-                <p>A quick breathing exercise to start your day with intention.</p>
-                <audio controls>
-                    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
-                </audio>
+                <span class="duration">13 à 30 min</span>
+                <h3>Les 4 forces</h3>
+                <p>L'écoute, le corps, le souffle, l'espace</p>
+                <iframe scrolling="no" src="https://share.transistor.fm/e/les-quatre-forces-aa87c817-d53e-4a19-9621-f7027797acd0/playlist" width="100%" height="390" frameborder="no"></iframe>
             </div>
 
             <div class="card">
                 <span class="duration">10 min</span>
-                <h3>Mid-Day Reset</h3>
-                <p>Release tension from your shoulders and refocus your mind.</p>
-                <audio controls>
-                    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" type="audio/mpeg">
-                </audio>
+                <h3>Foutez-vous la paix</h3>
+                <p>Ruvrir un espace où l’on ne fait rien et laisser la vie revenir</p>
+                <iframe scrolling="no" src="https://share.transistor.fm/e/foutez-vous-la-paix-cd0047f3-c028-42ca-922b-e3b39f8bc267/playlist" width="100%" height="390" frameborder="no"></iframe>
             </div>
 
             <div class="card">
                 <span class="duration">15 min</span>
                 <h3>Deep Sleep Prep</h3>
                 <p>Guided body scan to help you drift into a restful night.</p>
-                <audio controls>
-                    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" type="audio/mpeg">
-                </audio>
+                <iframe class="transistor-player" height="180" frameborder="no" scrolling="no" seamless="" src="https://share.transistor.fm/e/8ccb8c91"></iframe>
             </div>
         </div>
 
