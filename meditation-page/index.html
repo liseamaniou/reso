@@ -148,9 +148,17 @@
     </style>
     <script>
         function sendHeight() {
-            const height = document.body.scrollHeight;
+            // If we are currently jumping to a section, don't report height yet
+            if (window.isScrolling) return;
+
+            // Use documentElement for better accuracy in App WebViews
+            const height = Math.max(
+                document.body.scrollHeight, 
+                document.documentElement.scrollHeight
+            );
             window.parent.postMessage({ 'height': height }, '*');
         }
+        
         window.addEventListener('load', sendHeight);
         window.addEventListener('resize', sendHeight);
         window.addEventListener('scroll', handleScroll); // Listen for scroll
@@ -179,8 +187,10 @@
         function scrollToSection(id) {
             const element = document.getElementById(id);
             if (element) {
-                // We calculate the position of the element
-                const offset = 80; // This accounts for your sticky menu height
+                // 1. Temporarily disable the resize reporter
+                window.isScrolling = true; 
+
+                const offset = 80; 
                 const bodyRect = document.body.getBoundingClientRect().top;
                 const elementRect = element.getBoundingClientRect().top;
                 const elementPosition = elementRect - bodyRect;
@@ -190,6 +200,12 @@
                     top: offsetPosition,
                     behavior: 'smooth'
                 });
+
+                // 2. Re-enable after the scroll animation finishes (~600ms)
+                setTimeout(() => {
+                    window.isScrolling = false;
+                    sendHeight(); // Send one final, accurate height
+                }, 600);
             }
         }
     </script>
