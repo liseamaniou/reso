@@ -29,34 +29,52 @@
         nav.meditation-menu {
             position: sticky;
             top: 0;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(5px);
-            padding: 15px 10px;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
             z-index: 100;
-            text-align: center;
-            border-bottom: 1px solid #eee;
-            margin-bottom: 20px;
             display: flex;
-            justify-content: center;
-            gap: 15px;
-            flex-wrap: wrap;
+            flex-direction: column; /* Vertical by default for app feel */
+            padding: 10px 20px;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 30px;
         }
 
         nav.meditation-menu a {
             text-decoration: none;
-            color: var(--text);
-            font-weight: 600;
-            font-size: 0.9rem;
-            padding: 8px 16px;
-            border-radius: 20px;
-            border: 1px solid #ddd;
-            transition: all 0.3s ease;
+            color: #636e72;
+            font-weight: 500;
+            font-size: 1rem;
+            padding: 12px 0;
+            border-bottom: 1px solid #f9f9f9;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        nav.meditation-menu a:hover {
-            background-color: var(--default-color);
-            color: white;
-            border-color: var(--default-color);
+        /* Add a small chevron arrow to the right of the menu item */
+        nav.meditation-menu a::after {
+            content: '→';
+            font-size: 0.8rem;
+            opacity: 0.3;
+        }
+
+        nav.meditation-menu a:last-child {
+            border-bottom: none;
+        }
+
+        /* Desktop: Switch to horizontal row */
+        @media (min-width: 768px) {
+            nav.meditation-menu {
+                flex-direction: row;
+                justify-content: center;
+                gap: 30px;
+            }
+            nav.meditation-menu a {
+                border-bottom: none;
+            }
+            nav.meditation-menu a::after {
+                display: none;
+            }
         }
         /* ----------------------- */
 
@@ -146,7 +164,7 @@
             font-weight: bold;
         }
     </style>
-    <script>
+    <!--<script>
         function sendHeight() {
             // If we are currently jumping to a section, don't report height yet
             if (window.isScrolling) return;
@@ -156,6 +174,7 @@
                 document.body.scrollHeight, 
                 document.documentElement.scrollHeight
             );
+            console.log("Height sent")
             window.parent.postMessage({ 'height': height }, '*');
         }
 
@@ -189,6 +208,7 @@
             if (element) {
                 // 1. Temporarily disable the resize reporter
                 window.isScrolling = true; 
+                console.log("isScrolling true")
 
                 const offset = 80; 
                 const bodyRect = document.body.getBoundingClientRect().top;
@@ -204,18 +224,78 @@
                 // 2. Re-enable after the scroll animation finishes (~600ms)
                 setTimeout(() => {
                     window.isScrolling = false;
+                    console.log("isScrolling false")
                     sendHeight(); // Send one final, accurate height
                 }, 600);
             }
         }
+    </script>-->
+    <script>
+        let isScrolling = false;
+        let resizeTimeout;
+
+        function sendHeight() {
+            // If we are mid-scroll animation, do not recalculate height
+            if (isScrolling) return;
+
+            // Use a small timeout (debounce) to ensure the layout has "settled"
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                // We take the max of all possible height measurements to ensure no clipping
+                const height = Math.max(
+                    document.body.scrollHeight,
+                    document.body.offsetHeight,
+                    document.documentElement.clientHeight,
+                    document.documentElement.scrollHeight,
+                    document.documentElement.offsetHeight
+                );
+                
+                window.parent.postMessage({ 'height': height }, '*');
+            }, 100); 
+        }
+
+        function scrollToSection(id, element) {
+            const target = document.getElementById(id);
+            if (target) {
+                isScrolling = true; // Lock height reporting
+                
+                // Visual feedback for menu
+                const links = document.querySelectorAll('.meditation-menu a');
+                links.forEach(link => link.style.color = '#636e72');
+                if(element) element.style.color = 'var(--primary)';
+
+                const offset = 100; 
+                const bodyRect = document.body.getBoundingClientRect().top;
+                const targetRect = target.getBoundingClientRect().top;
+                
+                window.scrollTo({
+                    top: targetRect - bodyRect - offset,
+                    behavior: 'smooth'
+                });
+
+                // Wait for the smooth scroll to finish, then unlock and sync
+                setTimeout(() => {
+                    isScrolling = false;
+                    sendHeight(); 
+                }, 1000); // 1 second is enough for most mobile scroll animations
+            }
+        }
+
+        // Attach listeners
+        window.addEventListener('load', sendHeight);
+        window.addEventListener('resize', sendHeight);
+
+        if (window.ResizeObserver) {
+            const ro = new ResizeObserver(() => sendHeight());
+            ro.observe(document.body);
+        }
     </script>
 </head>
 <body>
-
     <nav class="meditation-menu">
-        <a href="javascript:void(0)" onclick="scrollToSection('quotidien')">Les pratiques du quotidien</a>
-        <a href="javascript:void(0)" onclick="scrollToSection('bienveillance')">Méditations de bienveillance</a>
-        <span style="color: #ccc; padding: 8px;">Bientôt plus...</span>
+        <a href="javascript:void(0)" onclick="scrollToSection('quotidien')">Au quotidien</a>
+        <a href="javascript:void(0)" onclick="scrollToSection('bienveillance')">Bienveillance</a>
+        <span class="menu-placeholder">À venir...</span>
     </nav>
 
     <div class="content-wrapper">
