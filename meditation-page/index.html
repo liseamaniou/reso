@@ -29,60 +29,45 @@
         nav.meditation-menu {
             position: sticky;
             top: 0;
-            background: rgba(255, 255, 255, 0.98);
-            backdrop-filter: blur(10px);
+            background: white;
             z-index: 100;
             display: flex;
-            flex-direction: column; /* Vertical by default for app feel */
-            padding: 10px 20px;
+            overflow-x: auto;
+            padding: 10px;
             border-bottom: 1px solid #eee;
-            margin-bottom: 30px;
+            gap: 10px;
         }
 
         nav.meditation-menu a {
             text-decoration: none;
             color: #636e72;
-            font-weight: 500;
-            font-size: 1rem;
-            padding: 12px 0;
-            border-bottom: 1px solid #f9f9f9;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            background: #f1f1f1;
+            padding: 8px 16px;
+            border-radius: 20px;
+            white-space: nowrap;
+            font-weight: 600;
+            transition: all 0.2s ease;
         }
 
-        /* Add a small chevron arrow to the right of the menu item */
-        nav.meditation-menu a::after {
-            content: '˯';
-            font-size: 0.8rem;
-            opacity: 0.3;
-        }
-
-        nav.meditation-menu a:last-child {
-            border-bottom: none;
-        }
-
-        /* Desktop: Switch to horizontal row */
-        @media (min-width: 768px) {
-            nav.meditation-menu {
-                flex-direction: row;
-                justify-content: center;
-                gap: 30px;
-            }
-            nav.meditation-menu a {
-                border-bottom: none;
-            }
-            nav.meditation-menu a::after {
-                display: none;
-            }
+        nav.meditation-menu a.active {
+            background: var(--active-color, #9F1457);
+            color: white;
         }
         /* ----------------------- */
 
         .content-wrapper { padding-bottom: 50px; }
 
+        /* Hide all sections by default */
         section {
+            display: none; 
             --category-color: var(--default-color);
-            margin-bottom: 60px;
+            margin: 20px;
+            margin-bottom: 20px;
+        }
+
+        /* Show the active one */
+        section.active {
+            display: block;
         }
 
         /* Apply the color to the specific headers */
@@ -142,15 +127,19 @@
             color: white;
             border: none;
             border-radius: 50%;
-            display: none;
             cursor: pointer;
+            
+            /* Centering the arrow */
+            display: flex; /* Hidden until scroll */
             justify-content: center;
             align-items: center;
+            
             box-shadow: 0 4px 10px rgba(0,0,0,0.2);
             z-index: 1000;
             transition: transform 0.2s ease, opacity 0.2s ease;
             font-size: 20px;
             text-decoration: none;
+            line-height: 0; /* Prevents text-line height from pushing arrow down */
         }
 
         #backToTop:hover {
@@ -165,84 +154,47 @@
         }
     </style>
     <script>
-        let isScrolling = false;
-        let resizeTimeout;
+        function showCategory(id, btn) {
+            // 1. Hide all sections and remove active class from buttons
+            document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.meditation-menu a').forEach(a => a.classList.remove('active'));
 
-        function sendHeight() {
-            // If we are mid-scroll animation, do not recalculate height
-            if (isScrolling) return;
-
-            // Use a small timeout (debounce) to ensure the layout has "settled"
-            clearTimeout(resizeTimeout);
-            resizeTimeout = setTimeout(() => {
-                // We take the max of all possible height measurements to ensure no clipping
-                const height = Math.max(
-                    document.body.scrollHeight,
-                    document.body.offsetHeight,
-                    document.documentElement.clientHeight,
-                    document.documentElement.scrollHeight,
-                    document.documentElement.offsetHeight
-                );
-                
-                window.parent.postMessage({ 'height': height }, '*');
-            }, 100); 
-        }
-
-        function scrollToSection(id) {
+            // 2. Show the chosen section
             const target = document.getElementById(id);
             if (target) {
-                isScrolling = true; // Lock height reporting
+                target.classList.add('active');
+                btn.classList.add('active');
                 
-                // Visual feedback for menu
-                const links = document.querySelectorAll('.meditation-menu a');
-                links.forEach(link => link.style.color = '#636e72');
+                // 3. Update the menu's indicator color to match the category
+                const color = target.style.getPropertyValue('--category-color');
+                document.documentElement.style.setProperty('--active-color', color);
 
-                const offset = 100; 
-                const bodyRect = document.body.getBoundingClientRect().top;
-                const targetRect = target.getBoundingClientRect().top;
+                // 4. Crucial: Tell the parent to resize IMMEDIATELY for the new content
+                // We use a tiny timeout to let the browser render the new section first
+                setTimeout(sendHeight, 50); 
                 
-                window.scrollTo({
-                    top: targetRect - bodyRect - offset,
-                    behavior: 'smooth'
-                });
-
-                // Wait for the smooth scroll to finish, then unlock and sync
-                setTimeout(() => {
-                    isScrolling = false;
-                    sendHeight(); 
-                }, 1000); // 1 second is enough for most mobile scroll animations
+                // 5. Scroll the PARENT to the top so the user starts at the beginning of the new list
+                window.parent.postMessage({ 'action': 'scrollTop' }, '*');
             }
         }
 
-        // Attach listeners
-        window.addEventListener('load', sendHeight);
-        window.addEventListener('resize', sendHeight);
-
-        // Robust ResizeObserver initialization
-        if (window.ResizeObserver) {
-            // We wait for the DOM to be fully loaded so document.body exists
-            window.addEventListener('DOMContentLoaded', () => {
-                const ro = new ResizeObserver(() => {
-                    sendHeight();
-                });
-                
-                if (document.body) {
-                    ro.observe(document.body);
-                    sendHeight(); // Initial push once body is ready
-                }
-            });
+        function sendHeight() {
+            const height = document.body.scrollHeight;
+            window.parent.postMessage({ 'height': height }, '*');
         }
+
+        // Initial height send
+        window.addEventListener('load', sendHeight);
     </script>
 </head>
 <body>
     <nav class="meditation-menu">
-        <a href="javascript:void(0)" onclick="scrollToSection('quotidien')">Au quotidien</a>
-        <a href="javascript:void(0)" onclick="scrollToSection('bienveillance')">Bienveillance</a>
-        <span class="menu-placeholder">À venir...</span>
+        <a href="javascript:void(0)" onclick="showCategory('quotidien', this)" class="active">Au quotidien</a>
+        <a href="javascript:void(0)" onclick="showCategory('bienveillance', this)">Bienveillance</a>
     </nav>
 
     <div class="content-wrapper">
-        <section id="quotidien" style="--category-color: #9F1457;">
+        <section id="quotidien" class="active" style="--category-color: #9F1457;">
             <header>
                 <h1>Les pratiques du quotidien</h1>
                 <p class="subtitle">Vous trouverez ici toutes les pratiques disponibles pour votre pratique quotidienne</p>
@@ -302,9 +254,6 @@
                 </div>
             </div>
         </section>
-
-        <div class="quote-box">
-        </div>
 
         <section id="bienveillance" style="--category-color: #008080;">
             <header>
