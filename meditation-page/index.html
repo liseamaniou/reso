@@ -53,7 +53,7 @@
 
         /* Add a small chevron arrow to the right of the menu item */
         nav.meditation-menu a::after {
-            content: '→';
+            content: '˯';
             font-size: 0.8rem;
             opacity: 0.3;
         }
@@ -164,72 +164,6 @@
             font-weight: bold;
         }
     </style>
-    <!--<script>
-        function sendHeight() {
-            // If we are currently jumping to a section, don't report height yet
-            if (window.isScrolling) return;
-
-            // Use documentElement for better accuracy in App WebViews
-            const height = Math.max(
-                document.body.scrollHeight, 
-                document.documentElement.scrollHeight
-            );
-            console.log("Height sent")
-            window.parent.postMessage({ 'height': height }, '*');
-        }
-
-        window.addEventListener('load', sendHeight);
-        window.addEventListener('resize', sendHeight);
-        window.addEventListener('scroll', handleScroll); // Listen for scroll
-
-        if (window.ResizeObserver) {
-            const ro = new ResizeObserver(() => sendHeight());
-            document.addEventListener("DOMContentLoaded", () => {
-                ro.observe(document.body);
-                sendHeight();
-            });
-        }
-        setTimeout(sendHeight, 1000);
-
-        function handleScroll() {
-            const btn = document.getElementById('backToTop');
-            if (btn) {
-                // Show button after 300px of scrolling
-                if (window.pageYOffset > 300) {
-                    btn.style.display = 'flex';
-                } else {
-                    btn.style.display = 'none';
-                }
-            }
-        }
-
-        function scrollToSection(id) {
-            const element = document.getElementById(id);
-            if (element) {
-                // 1. Temporarily disable the resize reporter
-                window.isScrolling = true; 
-                console.log("isScrolling true")
-
-                const offset = 80; 
-                const bodyRect = document.body.getBoundingClientRect().top;
-                const elementRect = element.getBoundingClientRect().top;
-                const elementPosition = elementRect - bodyRect;
-                const offsetPosition = elementPosition - offset;
-
-                window.scrollTo({
-                    top: offsetPosition,
-                    behavior: 'smooth'
-                });
-
-                // 2. Re-enable after the scroll animation finishes (~600ms)
-                setTimeout(() => {
-                    window.isScrolling = false;
-                    console.log("isScrolling false")
-                    sendHeight(); // Send one final, accurate height
-                }, 600);
-            }
-        }
-    </script>-->
     <script>
         let isScrolling = false;
         let resizeTimeout;
@@ -254,7 +188,7 @@
             }, 100); 
         }
 
-        function scrollToSection(id, element) {
+        function scrollToSection(id) {
             const target = document.getElementById(id);
             if (target) {
                 isScrolling = true; // Lock height reporting
@@ -262,7 +196,6 @@
                 // Visual feedback for menu
                 const links = document.querySelectorAll('.meditation-menu a');
                 links.forEach(link => link.style.color = '#636e72');
-                if(element) element.style.color = 'var(--primary)';
 
                 const offset = 100; 
                 const bodyRect = document.body.getBoundingClientRect().top;
@@ -285,9 +218,19 @@
         window.addEventListener('load', sendHeight);
         window.addEventListener('resize', sendHeight);
 
+        // Robust ResizeObserver initialization
         if (window.ResizeObserver) {
-            const ro = new ResizeObserver(() => sendHeight());
-            ro.observe(document.body);
+            // We wait for the DOM to be fully loaded so document.body exists
+            window.addEventListener('DOMContentLoaded', () => {
+                const ro = new ResizeObserver(() => {
+                    sendHeight();
+                });
+                
+                if (document.body) {
+                    ro.observe(document.body);
+                    sendHeight(); // Initial push once body is ready
+                }
+            });
         }
     </script>
 </head>
