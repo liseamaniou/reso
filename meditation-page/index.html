@@ -6,9 +6,9 @@
     <title>Daily Meditations</title>
     <style>
         :root { 
-            --primary: #9F1457; 
             --bg: #f9f9fb; 
             --text: #2d3436;
+            --default-color: #9F1457; /* Fallback */
         }
         
         html { scroll-behavior: smooth; } /* Makes the jumping smooth */
@@ -54,16 +54,27 @@
         }
 
         nav.meditation-menu a:hover {
-            background-color: var(--primary);
+            background-color: var(--default-color);
             color: white;
-            border-color: var(--primary);
+            border-color: var(--default-color);
         }
         /* ----------------------- */
 
         .content-wrapper { padding-bottom: 50px; }
 
+        section {
+            --category-color: var(--default-color);
+            margin-bottom: 60px;
+        }
+
+        /* Apply the color to the specific headers */
+        section h1 { 
+            color: var(--category-color); 
+            font-size: 1.8rem; 
+            margin-bottom: 5px; 
+        }
+
         header { text-align: center; margin-bottom: 30px; padding-top: 20px; }
-        h1 { color: var(--primary); font-size: 1.8rem; margin-bottom: 5px; }
         .subtitle { font-style: italic; color: #636e72; max-width: 800px; margin: 0 auto; line-height: 1.4; }
         
         .meditation-grid { 
@@ -78,12 +89,25 @@
             padding: 20px; 
             border-radius: 15px; 
             box-shadow: 0 4px 6px rgba(0,0,0,0.05); 
-            border-left: 5px solid var(--primary); 
+            border-left: 5px solid var(--category-color); /* Inherited! */
             display: flex;
             flex-direction: column;
         }
-        .card h3 { margin: 0 0 10px 0; font-size: 1.2rem; }
-        .duration { font-size: 0.8rem; background: #eee; padding: 3px 8px; border-radius: 10px; float: right; }
+        .card-header {
+            display: flex; 
+            justify-content: space-between; 
+            align-items: flex-start;
+        }
+        .card h3 { margin: 0 0 10px 0; font-size: 1.2rem; overflow-wrap: break-word; /* Ensures long words don't break the layout */}
+        .duration { 
+            font-size: 0.8rem; 
+            background: #eee; 
+            padding: 3px 8px; 
+            border-radius: 10px; 
+            flex-shrink: 0;       /* Prevents the title from "squeezing" this element */
+            white-space: nowrap; 
+            margin-left: 10px;
+        }
         
         iframe { width: 100%; margin-top: auto; padding-top: 15px; }
         
@@ -96,12 +120,12 @@
             right: 25px;
             width: 45px;
             height: 45px;
-            background-color: var(--primary);
+            background-color: var(--default-color);
             color: white;
             border: none;
             border-radius: 50%;
+            display: none;
             cursor: pointer;
-            display: none; /* Hidden by default */
             justify-content: center;
             align-items: center;
             box-shadow: 0 4px 10px rgba(0,0,0,0.2);
@@ -130,7 +154,7 @@
         window.addEventListener('load', sendHeight);
         window.addEventListener('resize', sendHeight);
         window.addEventListener('scroll', handleScroll); // Listen for scroll
-        
+
         if (window.ResizeObserver) {
             const ro = new ResizeObserver(() => sendHeight());
             document.addEventListener("DOMContentLoaded", () => {
@@ -139,82 +163,128 @@
             });
         }
         setTimeout(sendHeight, 1000);
+
+        function handleScroll() {
+            const btn = document.getElementById('backToTop');
+            if (btn) {
+                // Show button after 300px of scrolling
+                if (window.pageYOffset > 300) {
+                    btn.style.display = 'flex';
+                } else {
+                    btn.style.display = 'none';
+                }
+            }
+        }
+
+        function scrollToSection(id) {
+            const element = document.getElementById(id);
+            if (element) {
+                // We calculate the position of the element
+                const offset = 80; // This accounts for your sticky menu height
+                const bodyRect = document.body.getBoundingClientRect().top;
+                const elementRect = element.getBoundingClientRect().top;
+                const elementPosition = elementRect - bodyRect;
+                const offsetPosition = elementPosition - offset;
+
+                window.scrollTo({
+                    top: offsetPosition,
+                    behavior: 'smooth'
+                });
+            }
+        }
     </script>
 </head>
 <body>
 
     <nav class="meditation-menu">
-        <a href="#quotidien">Les pratiques du quotidien</a>
-        <a href="#bienveillance">Méditations de bienveillance</a>
+        <a href="javascript:void(0)" onclick="scrollToSection('quotidien')">Les pratiques du quotidien</a>
+        <a href="javascript:void(0)" onclick="scrollToSection('bienveillance')">Méditations de bienveillance</a>
         <span style="color: #ccc; padding: 8px;">Bientôt plus...</span>
     </nav>
 
     <div class="content-wrapper">
-        <header id="quotidien">
-            <h1>Les pratiques du quotidien</h1>
-            <p class="subtitle">Vous trouverez ici toutes les pratiques disponibles pour votre pratique quotidienne</p>
-        </header>
+        <section id="quotidien" style="--category-color: #9F1457;">
+            <header>
+                <h1>Les pratiques du quotidien</h1>
+                <p class="subtitle">Vous trouverez ici toutes les pratiques disponibles pour votre pratique quotidienne</p>
+            </header>
 
-        <div class="meditation-grid">
-            <div class="card">
-                <span class="duration">10 à 30 min</span>
-                <h3>Les 4 forces</h3>
-                <p>L'écoute, le corps, le souffle, l'espace</p>
-                <iframe scrolling="no" src="https://share.transistor.fm/e/les-quatre-forces-aa87c817-d53e-4a19-9621-f7027797acd0/playlist" width="100%" height="390" frameborder="no"></iframe>
-            </div>
+            <div class="meditation-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Les 4 forces</h3>
+                        <span class="duration">10 à 30 min</span>
+                    </div>
+                    <p>L'écoute, le corps, le souffle, l'espace</p>
+                    <iframe scrolling="no" src="https://share.transistor.fm/e/les-quatre-forces-aa87c817-d53e-4a19-9621-f7027797acd0/playlist" width="100%" height="390" frameborder="no"></iframe>
+                </div>
 
-            <div class="card">
-                <span class="duration">5 à 20 min</span>
-                <h3>Foutez-vous la paix</h3>
-                <p>Rouvrir un espace où l’on ne fait rien et laisser la vie revenir</p>
-                <iframe scrolling="no" src="https://share.transistor.fm/e/foutez-vous-la-paix-cd0047f3-c028-42ca-922b-e3b39f8bc267/playlist" width="100%" height="390" frameborder="no"></iframe>
-            </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Foutez-vous la paix</h3>
+                        <span class="duration">5 à 20 min</span>
+                    </div>
+                    <p>Rouvrir un espace où l’on ne fait rien et laisser la vie revenir</p>
+                    <iframe scrolling="no" src="https://share.transistor.fm/e/foutez-vous-la-paix-cd0047f3-c028-42ca-922b-e3b39f8bc267/playlist" width="100%" height="390" frameborder="no"></iframe>
+                </div>
 
-            <div class="card">
-                <span class="duration">15 à 20 min</span>
-                <h3>Les pratiques du bourgeon</h3>
-                <p>Cultiver la vie dans son surgissement</p>
-                <iframe width="100%" height="390" frameborder="no" scrolling="no" src="https://share.transistor.fm/e/cycle-2023-2024-avec-fabrice-midal/playlist"></iframe>
-            </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Les pratiques du bourgeon</h3>
+                        <span class="duration">15 à 20 min</span>
+                    </div>
 
-            <div class="card">
-                <span class="duration">25 à 30 min</span>
-                <h3>Les deux embrassements</h3>
-                <iframe width="100%" height="390" frameborder="no" scrolling="no" src="https://share.transistor.fm/e/la-pratique-des-deux-embrassements/playlist"></iframe>
-            </div>
+                    <p>Cultiver la vie dans son surgissement</p>
+                    <iframe width="100%" height="390" frameborder="no" scrolling="no" src="https://share.transistor.fm/e/cycle-2023-2024-avec-fabrice-midal/playlist"></iframe>
+                </div>
 
-            <div class="card">
-                <span class="duration">10 à 25 min</span>
-                <h3>La pratique des précieux bonjours</h3>
-                <iframe width="100%" height="390" frameborder="no" scrolling="no" src="https://share.transistor.fm/e/la-pratique-des-precieux-bonjours-7ef9d443-4c3d-479d-b447-e1bbeed0be42/playlist"></iframe>
-            </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Les deux embrassements</h3>
+                        <span class="duration">25 à 30 min</span>
+                    </div>
+                    <iframe width="100%" height="390" frameborder="no" scrolling="no" src="https://share.transistor.fm/e/la-pratique-des-deux-embrassements/playlist"></iframe>
+                </div>
 
-            <div class="card">
-                <span class="duration">10 à 30 min</span>
-                <h3>La lampe merveilleuse</h3>
-                <iframe width="100%" height="390" frameborder="no" scrolling="no" src="https://share.transistor.fm/e/la-lampe-merveilleuse-qui-dissipe-lobscurite-des-jugements-negatifs/playlist"></iframe>
+                <div class="card">
+                    <div class="card-header">
+                        <h3>La pratique des précieux bonjours</h3>
+                        <span class="duration">10 à 25 min</span>
+                    </div>
+                    <iframe width="100%" height="390" frameborder="no" scrolling="no" src="https://share.transistor.fm/e/la-pratique-des-precieux-bonjours-7ef9d443-4c3d-479d-b447-e1bbeed0be42/playlist"></iframe>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3>La lampe merveilleuse</h3>
+                        <span class="duration">10 à 30 min</span>
+                    </div>
+                    <iframe width="100%" height="390" frameborder="no" scrolling="no" src="https://share.transistor.fm/e/la-lampe-merveilleuse-qui-dissipe-lobscurite-des-jugements-negatifs/playlist"></iframe>
+                </div>
             </div>
-        </div>
+        </section>
 
         <div class="quote-box">
         </div>
 
-        <header id="bienveillance">
-            <h1>Méditations de bienveillance</h1>
-            <p class="subtitle">Apprendre à s’ouvrir au monde à partir de ces ressources, plutôt qu’à subir nos vies en se repliant sur nous-mêmes</p>
-        </header>
+        <section id="bienveillance" style="--category-color: #008080;">
+            <header>
+                <h1>Méditations de bienveillance</h1>
+                <p class="subtitle">Apprendre à s’ouvrir au monde à partir de ces ressources, plutôt qu’à subir nos vies en se repliant sur nous-mêmes</p>
+            </header>
 
-        <div class="meditation-grid">
-            <div class="card">
-                <span class="duration">30 à 45 min</span>
-                <h3>Les pratiques de base</h3>
-                <iframe width="100%" height="390" frameborder="no" scrolling="no" src="https://share.transistor.fm/e/pratique-de-base-bienveillance/playlist"></iframe>
+            <div class="meditation-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Les pratiques de base</h3>
+                        <span class="duration">30 à 45 min</span>
+                    </div>
+                    <iframe width="100%" height="390" frameborder="no" scrolling="no" src="https://share.transistor.fm/e/pratique-de-base-bienveillance/playlist"></iframe>
+                </div>
             </div>
-        </div>
-
+        </section>
         
-
-        <a href="#" id="backToTop" title="Retour en haut"></a>
+        <a href="javascript:void(0)" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" id="backToTop" title="Retour en haut"></a>
     </div>
 </body>
 </html>
