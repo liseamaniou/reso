@@ -99,6 +99,7 @@
         const form = document.getElementById('contactForm');
         const btn = document.getElementById('submitBtn');
 
+        // Envoi au bon email
         form.addEventListener('submit', function(e) {
             const selectedEmail = document.getElementById('topic').value;
             
@@ -109,6 +110,13 @@
             btn.innerText = "Envoi en cours...";
             btn.style.opacity = "0.7";
         });
+
+        // Logique d'affichage du message de succès
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('page') === 'merci') {
+            document.getElementById('contactForm').style.display = 'none'; // Cache le formulaire
+            document.getElementById('success-message').style.display = 'block'; // Montre le message
+        }
     </script>
 </body>
 </html>
