@@ -148,20 +148,19 @@
 
         // Submission Logic
         form.addEventListener('submit', function(e) {
-            // 1. Set the destination email from the select value
+            // 1. Get values
             const firstName = document.getElementById('firstname').value;
             const lastName = document.getElementById('lastname').value;
             const userSubject = userSubjectInput.value;
             const selectedEmail = topicSelect.value;
-            const subjectField = document.getElementById('dynamic_subject');
 
-
+            // 2. Set the destination email
             form.action = "https://formsubmit.co/" + selectedEmail;
 
-            // 2. Create the the unique subject line
+            // 3. Create the unique subject line (using dynamicSubject consistently)
             dynamicSubject.value = "RESO: " + userSubject + " (" + firstName + " " + lastName + ")";
 
-            // 3. Capture the TEXT of the option (e.g. "Adhésions") for the email body
+            // 4. Capture the TEXT of the option (e.g. "Adhésions") for the email body
             hiddenSubject.value = topicSelect.options[topicSelect.selectedIndex].text;
             
             btn.innerText = "Envoi en cours...";
