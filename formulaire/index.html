@@ -84,7 +84,8 @@
     <form id="contactForm" method="POST">
         <input type="text" name="_honey" style="display:none">
         <input type="hidden" name="_captcha" value="false">
-        <input type="hidden" name="_subject" value="Nouveau message depuis le formulaire Reso">
+        <!-- <input type="hidden" name="_subject" value="Nouveau message depuis le formulaire Reso"> -->
+        <input type="hidden" name="_subject" id="dynamic_subject">
         <input type="hidden" name="_title" value="Nouveau message - Reso">
         <input type="hidden" name="_template" value="box">
         <input type="hidden" name="_next" value="https://liseamaniou.github.io/reso/formulaire?page=merci">
@@ -107,13 +108,18 @@
         </div>
 
         <div class="form-group">
-            <label for="topic">Objet de votre demande</label>
+            <label for="topic">Motif de votre demande</label>
             <select id="topic" required>
                 <option value="" disabled selected>Choisissez une option...</option>
                 <option value="lise.amaniou@gmail.com">Problème technique</option>
                 <option value="lise.amaniou@gmail.com">Adhésions</option>
                 <option value="lise@fabricemidal.fr">Informations générales</option>
             </select>
+        </div>
+
+        <div class="form-group">
+            <label for="user_subject">Objet de votre message</label>
+            <input type="text" id="user_subject" placeholder="De quoi s'agit-il ?" required>
         </div>
 
         <div class="form-group">
@@ -128,7 +134,9 @@
         const form = document.getElementById('contactForm');
         const btn = document.getElementById('submitBtn');
         const topicSelect = document.getElementById('topic');
+        const userSubjectInput = document.getElementById('user_subject');
         const hiddenSubject = document.getElementById('hidden_subject');
+        const dynamicSubject = document.getElementById('dynamic_subject');
         const inputs = form.querySelectorAll('input, select, textarea');
 
         // Validation logic
@@ -141,10 +149,19 @@
         // Submission Logic
         form.addEventListener('submit', function(e) {
             // 1. Set the destination email from the select value
+            const firstName = document.getElementById('firstname').value;
+            const lastName = document.getElementById('lastname').value;
+            const userSubject = userSubjectInput.value;
             const selectedEmail = topicSelect.value;
+            const subjectField = document.getElementById('dynamic_subject');
+
+
             form.action = "https://formsubmit.co/" + selectedEmail;
-            
-            // 2. Capture the TEXT of the option (e.g. "Adhésions") for the email body
+
+            // 2. Create the the unique subject line
+            dynamicSubject.value = "RESO: " + userSubject + " (" + firstName + " " + lastName + ")";
+
+            // 3. Capture the TEXT of the option (e.g. "Adhésions") for the email body
             hiddenSubject.value = topicSelect.options[topicSelect.selectedIndex].text;
             
             btn.innerText = "Envoi en cours...";
