@@ -23,7 +23,6 @@
             -webkit-appearance: none;
         }
 
-        /* Adjusting textarea back to auto height since it needs to grow */
         textarea { height: auto; }
 
         input:focus, select:focus, textarea:focus {
@@ -32,44 +31,27 @@
             box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
         }
 
-        /* 1. Only show red border if the field has the 'touched' class and is invalid */
+        /* Validation: Only red if 'touched' (clicked and left) and invalid */
         .touched:invalid {
             border-color: #e3342f !important;
         }
-
-        /*button { 
-            background: #F0A800; 
-            color: white; 
-            border: none; 
-            padding: 12px 24px; 
-            border-radius: 6px; 
-            cursor: pointer; 
-            font-weight: bold;
-            width: 100%;
-            transition: background 0.2s;
-            font-size: 16px;
-        }*/
 
         button { 
             background: #F0A800; 
             color: white; 
             border: none; 
-            padding: 12px 40px; /* Increased side padding for a nicer look */
+            padding: 12px 40px; 
             border-radius: 6px; 
             cursor: pointer; 
             font-weight: bold;
-            
-            /* Centering logic */
             display: block;
             width: auto;
             margin: 0 auto; 
-            
             transition: background 0.2s;
             font-size: 16px;
         }
 
         button:hover { background: #d99700; }
-        .info-text { font-size: 12px; color: #6b7280; margin-top: 10px; text-align: center; }
 
         #success-message {
             display: none;
@@ -93,29 +75,29 @@
     <form id="contactForm" method="POST">
         <input type="text" name="_honey" style="display:none">
         <input type="hidden" name="_captcha" value="false">
-        <input type="hidden" name="_subject" value="Nouveau message depuis le formulaire Reso">
-        <input type="hidden" name="_title" value="Nouveau message - Reso">
         <input type="hidden" name="_template" value="box">
         <input type="hidden" name="_next" value="https://liseamaniou.github.io/reso/formulaire?page=merci">
+        
+        <input type="hidden" name="Sujet_Demande" id="hidden_subject">
 
         <div class="form-group">
             <label for="firstname">Prénom</label>
-            <input type="text" id="firstname" name="prenom" placeholder="Votre prénom" required>
+            <input type="text" id="firstname" name="Prenom" placeholder="Votre prénom" required>
         </div>
         
         <div class="form-group">
             <label for="lastname">Nom</label>
-            <input type="text" id="lastname" name="nom" placeholder="Votre nom" required>
+            <input type="text" id="lastname" name="Nom" placeholder="Votre nom" required>
         </div>
 
         <div class="form-group">
             <label for="email">Adresse email</label>
-            <input type="email" id="email" name="email" placeholder="exemple@domaine.com" required>
+            <input type="email" id="email" name="Email" placeholder="exemple@domaine.com" required>
         </div>
 
         <div class="form-group">
             <label for="topic">Objet de votre demande</label>
-            <select id="topic" name="sujet" required>
+            <select id="topic" required>
                 <option value="" disabled selected>Choisissez une option...</option>
                 <option value="lise.amaniou@gmail.com">Problème technique</option>
                 <option value="lise.amaniou@gmail.com">Adhésions</option>
@@ -125,7 +107,7 @@
 
         <div class="form-group">
             <label for="message">Message</label>
-            <textarea id="message" name="message" rows="5" placeholder="Comment pouvons-nous vous aider ?" required></textarea>
+            <textarea id="message" name="Message" rows="5" placeholder="Comment pouvons-nous vous aider ?" required></textarea>
         </div>
 
         <button type="submit" id="submitBtn">Envoyer</button>
@@ -134,25 +116,31 @@
     <script>
         const form = document.getElementById('contactForm');
         const btn = document.getElementById('submitBtn');
+        const topicSelect = document.getElementById('topic');
+        const hiddenSubject = document.getElementById('hidden_subject');
         const inputs = form.querySelectorAll('input, select, textarea');
 
-        // Logic: Add 'touched' class when user leaves the field (blur)
+        // Validation logic
         inputs.forEach(input => {
             input.addEventListener('blur', () => {
                 input.classList.add('touched');
             });
         });
 
-        // Form Submission Logic
+        // Submission Logic
         form.addEventListener('submit', function(e) {
-            const selectedEmail = document.getElementById('topic').value;
+            // 1. Set the destination email from the select value
+            const selectedEmail = topicSelect.value;
             form.action = "https://formsubmit.co/" + selectedEmail;
+            
+            // 2. Capture the TEXT of the option (e.g. "Adhésions") for the email body
+            hiddenSubject.value = topicSelect.options[topicSelect.selectedIndex].text;
             
             btn.innerText = "Envoi en cours...";
             btn.style.opacity = "0.7";
         });
 
-        // Success message logic
+        // Success logic
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('page') === 'merci') {
             document.getElementById('contactForm').style.display = 'none';
