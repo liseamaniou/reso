@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contactez-nous - RESO</title>
     <style>
-        /* Style simple et épuré pour s'intégrer à RESO */
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 20px; color: #333; background-color: transparent; }
         .form-group { margin-bottom: 20px; }
         label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; }
+        
         input, select, textarea { 
             width: 100%; 
             padding: 12px; 
@@ -16,16 +16,27 @@
             border-radius: 6px; 
             box-sizing: border-box; 
             font-size: 16px;
+            background-color: white;
+            /* Ensures select is same height as inputs */
+            height: 48px; 
+            appearance: none; 
+            -webkit-appearance: none;
         }
+
+        /* Adjusting textarea back to auto height since it needs to grow */
+        textarea { height: auto; }
+
         input:focus, select:focus, textarea:focus {
             outline: none;
             border-color: #007bff;
             box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
         }
 
-        input:invalid, select:invalid, textarea:invalid {
-            border-color: #e3342f; /* Un rouge doux */
+        /* 1. Only show red border if the field has the 'touched' class and is invalid */
+        .touched:invalid {
+            border-color: #e3342f !important;
         }
+
         button { 
             background: #F0A800; 
             color: white; 
@@ -36,13 +47,13 @@
             font-weight: bold;
             width: 100%;
             transition: background 0.2s;
+            font-size: 16px;
         }
-        button:hover { background: #0056b3; }
+        button:hover { background: #d99700; }
         .info-text { font-size: 12px; color: #6b7280; margin-top: 10px; text-align: center; }
 
-        /* Style du message de succès */
         #success-message {
-            display: none; /* Caché par défaut */
+            display: none;
             background-color: #d4edda;
             color: #155724;
             border: 1px solid #c3e6cb;
@@ -62,20 +73,18 @@
 
     <form id="contactForm" method="POST">
         <input type="text" name="_honey" style="display:none">
-        
         <input type="hidden" name="_captcha" value="false">
-        
         <input type="hidden" name="_subject" value="Nouveau message depuis le site RESO">
-
         <input type="hidden" name="_next" value="https://liseamaniou.github.io/reso/formulaire?page=merci">
 
         <div class="form-group">
-            <label for="name">Prénom</label>
-            <input type="text" id="name" name="nom" placeholder="Votre prénom" required>
+            <label for="firstname">Prénom</label>
+            <input type="text" id="firstname" name="prenom" placeholder="Votre prénom" required>
         </div>
+        
         <div class="form-group">
-            <label for="name">Nom</label>
-            <input type="text" id="name" name="nom" placeholder="Votre nom" required>
+            <label for="lastname">Nom</label>
+            <input type="text" id="lastname" name="nom" placeholder="Votre nom" required>
         </div>
 
         <div class="form-group">
@@ -84,7 +93,7 @@
         </div>
 
         <div class="form-group">
-            <label for="topic">Sujet de votre demande</label>
+            <label for="topic">Objet de votre demande</label>
             <select id="topic" name="sujet" required>
                 <option value="" disabled selected>Choisissez une option...</option>
                 <option value="lise.amaniou@gmail.com">Problème technique</option>
@@ -104,24 +113,29 @@
     <script>
         const form = document.getElementById('contactForm');
         const btn = document.getElementById('submitBtn');
+        const inputs = form.querySelectorAll('input, select, textarea');
 
-        // Envoi au bon email
+        // Logic: Add 'touched' class when user leaves the field (blur)
+        inputs.forEach(input => {
+            input.addEventListener('blur', () => {
+                input.classList.add('touched');
+            });
+        });
+
+        // Form Submission Logic
         form.addEventListener('submit', function(e) {
             const selectedEmail = document.getElementById('topic').value;
-            
-            // Mise à jour de l'action du formulaire dynamiquement
             form.action = "https://formsubmit.co/" + selectedEmail;
             
-            // Petit feedback visuel
             btn.innerText = "Envoi en cours...";
             btn.style.opacity = "0.7";
         });
 
-        // Logique d'affichage du message de succès
+        // Success message logic
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('page') === 'merci') {
-            document.getElementById('contactForm').style.display = 'none'; // Cache le formulaire
-            document.getElementById('success-message').style.display = 'block'; // Montre le message
+            document.getElementById('contactForm').style.display = 'none';
+            document.getElementById('success-message').style.display = 'block';
         }
     </script>
 </body>
