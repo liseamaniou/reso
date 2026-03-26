@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contactez-nous - Reso</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 20px; color: #333; background-color: transparent; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; }
+        
+        input, textarea { 
+            width: 100%; 
+            padding: 12px; 
+            border: 1px solid #d1d5db; 
+            border-radius: 6px; 
+            box-sizing: border-box; 
+            font-size: 16px;
+            background-color: white;
+            height: 48px; 
+        }
+
+        textarea { height: auto; }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+        }
+
+        .touched:invalid {
+            border-color: #e3342f !important;
+        }
+
+        button { 
+            background: #F0A800; 
+            color: white; 
+            border: none; 
+            padding: 12px 40px; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-weight: bold;
+            display: block;
+            width: auto;
+            margin: 0 auto; 
+            transition: background 0.2s;
+            font-size: 16px;
+        }
+
+        button:hover { background: #d99700; }
+
+        #success-message {
+            display: none;
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            padding: 20px;
+            border-radius: 6px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="success-message">
+        <h3 style="margin-top:0;">Merci !</h3>
+        <p>Votre message a été envoyé avec succès.</p>
+    </div>
+
+    <form id="contactForm" method="POST">
+        <input type="text" name="_honey" style="display:none">
+        <input type="hidden" name="_captcha" value="false">
+        <input type="hidden" name="_subject" id="dynamic_subject">
+        <input type="hidden" name="_template" value="box">
+        <input type="hidden" name="_next" value="https://liseamaniou.github.io/reso/formulaire?page=merci">
+        
+        <div class="form-group">
+            <label for="firstname">Prénom</label>
+            <input type="text" id="firstname" name="Prenom" placeholder="Votre prénom" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="lastname">Nom</label>
+            <input type="text" id="lastname" name="Nom" placeholder="Votre nom" required>
+        </div>
+
+        <div class="form-group">
+            <label for="email">Adresse email</label>
+            <input type="email" id="email" name="email" placeholder="exemple@domaine.com" required>
+        </div>
+
+        <div class="form-group">
+            <label for="user_subject">Objet de votre message</label>
+            <input type="text" id="user_subject" name="Objet" placeholder="De quoi s'agit-il ?" required>
+        </div>
+
+        <div class="form-group">
+            <label for="message">Message</label>
+            <textarea id="message" name="Message" rows="5" placeholder="Comment pouvons-nous vous aider ?" required></textarea>
+        </div>
+
+        <button type="submit" id="submitBtn">Envoyer</button>
+    </form>
+
+    <script>
+        const form = document.getElementById('contactForm');
+        const btn = document.getElementById('submitBtn');
+        const userSubjectInput = document.getElementById('user_subject');
+        const dynamicSubject = document.getElementById('dynamic_subject');
+        const inputs = form.querySelectorAll('input, textarea');
+
+        // Validation: mark as touched on blur
+        inputs.forEach(input => {
+            input.addEventListener('blur', () => {
+                input.classList.add('touched');
+            });
+        });
+
+        // Submission Logic
+        form.addEventListener('submit', function(e) {
+            const firstName = document.getElementById('firstname').value;
+            const lastName = document.getElementById('lastname').value;
+            const userSubject = userSubjectInput.value;
+
+            // Hardcoded destination since there's only one
+            form.action = "https://formsubmit.co/info@reso.co";
+
+            // Format the subject line for your inbox
+            dynamicSubject.value = "Nouveau message Reso : " + userSubject + " (de " + firstName + " " + lastName + ")";
+            
+            btn.innerText = "Envoi en cours...";
+            btn.style.opacity = "0.7";
+        });
+
+        // Success message logic based on URL param
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('page') === 'merci') {
+            document.getElementById('contactForm').style.display = 'none';
+            document.getElementById('success-message').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
